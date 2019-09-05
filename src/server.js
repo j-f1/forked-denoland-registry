@@ -25,7 +25,7 @@ function createLambdaRequest(req) {
   };
 }
 
-const port = Number.isNaN(process.env.PORT) ? 4000 : +process.env.PORT;
+const port = 4000;
 const server = http.createServer((req, res) => {
   process.stdout.write(
     `${new Date().toLocaleTimeString()} ${req.method} ${req.url}`

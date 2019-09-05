@@ -16,8 +16,6 @@ To run the dev server (you shouldn’t need to do this to add a package to the r
 ```sh
 cd src
 npm install
-cp .env.sample .env
-# [follow the instructions in the .env file]
 npm start
 ```
 

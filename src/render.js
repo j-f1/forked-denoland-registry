@@ -6,13 +6,13 @@ module.exports = async function render(
   request,
   pathname,
   query,
-  { entry, path }
+  { url, repo }
 ) {
-  if (path.endsWith("/") || path === "") {
-    return require("./render_dir")(pathname, entry, path);
+  if (url.endsWith("/") || url.endsWith("/index.html")) {
+    return require("./render_dir")(pathname, { url, repo });
   }
 
-  const res = await fetch(entry.url + path);
+  const res = await fetch(url);
   if (res.status !== 200) return response.notFound();
 
   // TODO(ry) use res.arrayBuffer() instead of res.text().
@@ -23,7 +23,7 @@ module.exports = async function render(
   //    /std/prettier/vendor/parser_typescript.js
   // See https://github.com/denoland/registry/issues/115
   if (content.length > 1024 * 1024) {
-    return response.redirect(entry.url + path);
+    return response.redirect(url);
   }
 
   const showHTMLVersion =
@@ -36,8 +36,7 @@ module.exports = async function render(
     const transpiled = require("./transpile_code")(pathname, content)
       .outputText;
     if (showHTMLVersion) {
-      return require("./render_code")(pathname, transpiled, entry, {
-        path,
+      return require("./render_code")(pathname, transpiled, repo, {
         compiled: true
       });
     } else {
@@ -47,10 +46,10 @@ module.exports = async function render(
     // Accept header present, this is a web browser, so display something
     // pretty.
     if (pathname.endsWith(".md")) {
-      return require("./render_markdown")(pathname, content, entry.repo);
+      return require("./render_markdown")(pathname, content, repo);
     }
 
-    return require("./render_code")(pathname, content, entry, { path });
+    return require("./render_code")(pathname, content, repo);
   } else {
     // If we're not displaying HTML, proxy the body instead of redirecting.
     const lambdaRes = await fetch2LambdaResponse(res, content);

@@ -17,13 +17,3 @@ export interface Replacement {
   end: number;
   with: Token[];
 }
-
-export interface Entry {
-  name: string;
-  url: string;
-  repo: string;
-  raw: RawEntry;
-}
-export type RawEntry =
-  | { type: "url"; url: string; repo: string }
-  | { type: "github"; owner: string; name: string };
