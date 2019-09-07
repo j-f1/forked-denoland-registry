@@ -322,5 +322,9 @@
   "watch": {
     "url": "https://raw.githubusercontent.com/jinjor/deno-watch/${b}/",
     "repo": "https://github.com/jinjor/deno-watch"
+  },
+  "tokenizer": {
+    "url": "https://raw.githubusercontent.com/eliassjogreen/deno_tokenizer/${b}/",
+    "repo": "https://github.com/eliassjogreen/deno_tokenizer"
   }
 }
