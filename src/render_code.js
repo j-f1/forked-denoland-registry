@@ -6,11 +6,32 @@ const styles = require("./code_styles");
 const scripts = require("./code_scripts");
 const { transformModuleSpecifier } = require("./transpile_code");
 const { annotate } = require("./analyze_code");
+const renderBreadcrumbs = require("./breadcrumbs");
 
-module.exports = function renderCode(pathname, code, repo, opts = {}) {
+function getLines(pathname, code) {
+  if (pathname.endsWith(".ts") || pathname.endsWith(".js")) {
+    try {
+      return {
+        err: null,
+        lines: annotate(pathname, code).split("\n")
+      };
+    } catch (err) {
+      return {
+        err,
+        lines: code.split("\n").map(escapeHtml)
+      };
+    }
+  }
+  return {
+    err: null,
+    lines: code.split("\n").map(escapeHtml)
+  };
+}
+
+module.exports = function renderCode(pathname, code, entry, opts = {}) {
   const url = `https://deno.land${pathname}`;
 
-  const escapedLines = annotate(pathname, code).split("\n");
+  const { err, lines: escapedLines } = getLines(pathname, code);
   const lineNumberedCode = escapedLines
     .map((content, i) => {
       const line = i + 1;
@@ -53,16 +74,39 @@ module.exports = function renderCode(pathname, code, repo, opts = {}) {
         </style>
       </head>
       <body>
-        <a href="${repo}">View repository on GitHub</a> <br /><br /><em>
-          ${pathname.endsWith(".ts")
-            ? opts.compiled
-              ? `This file has been compiled to JS. <a href="${url}">View the original version here</a>.`
-              : `deno.land can automatically transpile this file. <a href="${transformModuleSpecifier(
-                  pathname,
-                  pathname
-                )}">View the transpiled version</a>.`
-            : "deno.land can’t automatically transpile this file. If you think it should be able to, open an issue!"}
-        </em>
+        <h1>
+          ${renderBreadcrumbs(pathname, entry)}
+        </h1>
+        <p>
+          <em>
+            ${pathname.endsWith(".ts")
+              ? opts.compiled
+                ? `This file has been compiled to JS. <a href="${url}">View the original version here</a>.`
+                : `deno.land can automatically transpile this file. <a href="${transformModuleSpecifier(
+                    pathname,
+                    pathname
+                  )}">View the transpiled version</a>.`
+              : "deno.land can’t automatically transpile this file. If you think it should be able to, open an issue!"}
+          </em>
+        </p>
+        ${err
+          ? `
+              <details>
+                <summary>
+                  This file couldn’t be annotated due to an error.
+                </summary>
+                <pre>${escapeHtml(
+                  err.stack.replace(
+                    new RegExp(
+                      __dirname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+                      "g"
+                    ),
+                    "..."
+                  )
+                )}</pre>
+              </details>
+            `
+          : ""}
         <pre><code class="${path.extname(pathname).slice(1) ||
           "no-highlight"}">${lineNumberedCode}</code></pre>
         ${scripts}
