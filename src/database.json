@@ -337,6 +337,11 @@
     "owner": "zekth",
     "repo": "deno_random_interval"
   },
+  "redis": {
+    "type": "github",
+    "owner": "keroxp",
+    "repo": "deno-redis"
+  },
   "semver": {
     "type": "github",
     "owner": "justjavac",
