@@ -17,7 +17,10 @@ exports.escapeHtml = function escapeHtml(unsafe) {
  */
 exports.walkAST = function walkAST(node, cb) {
   cb(node);
-  require("typescript").forEachChild(node, n => walkAST(n, cb));
+  require("typescript").forEachChild(node, n => {
+    if (!n.parent) n.parent = node;
+    walkAST(n, cb);
+  });
 };
 
 /**
@@ -33,6 +36,7 @@ exports.getEntry = function getEntry(name, branch = "master") {
   } else if (rawEntry.type === "url") {
     return {
       name,
+      branch,
       raw: rawEntry,
       type: "url",
       url: rawEntry.url.replace(/\$\{b}/, branch),
@@ -52,13 +56,14 @@ exports.getEntry = function getEntry(name, branch = "master") {
   if (rawEntry.type === "github") {
     return {
       name,
+      branch,
       raw: rawEntry,
       type: "github",
       url: `https://raw.githubusercontent.com/${rawEntry.owner}/${
         rawEntry.repo
       }/${branch}${rawEntry.path || "/"}`,
       repo: `https://github.com/${rawEntry.owner}/${rawEntry.repo}${
-        rawEntry.path ? `/tree/${branch}/${rawEntry.path}` : ""
+        rawEntry.path ? `/tree/${branch}${rawEntry.path || "/"}` : ""
       }`
     };
   }

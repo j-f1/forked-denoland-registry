@@ -20,20 +20,24 @@ module.exports = function renderBreadcrumbs(pathname, entry) {
         <wbr /><span class="slash">/</span>
       `
     );
-    if (i === segments.length - 1) {
-      crumbs.push(
-        html`
-          <strong>${escapeHtml(segment)}</strong>
-        `
-      );
-    } else {
-      crumbs.push(
-        html`
-          <a href="${url}">${escapeHtml(segment)}</a>
-        `
-      );
-    }
-    if ((i === 0 && segment === "std") || (i === 1 && segments[0] === "x")) {
+    if (
+      (i === 0 && segment.startsWith("std")) ||
+      (i === 1 && segments[0] === "x")
+    ) {
+      const [pkg, version] = segment.split("@");
+      if (i === segments.length - 1) {
+        crumbs.push(
+          html`
+            <strong>${escapeHtml(pkg)}</strong>
+          `
+        );
+      } else {
+        crumbs.push(
+          html`
+            <a href="${url}">${escapeHtml(pkg)}</a>
+          `
+        );
+      }
       crumbs.push(html`
         &nbsp;<a href="${entry.repo}"
           >${(entry.raw.type === "github"
@@ -46,6 +50,33 @@ module.exports = function renderBreadcrumbs(pathname, entry) {
           })}</a
         >
       `);
+      const branchUrl =
+        entry.raw.type === "github" ? `${entry.repo}/tree/${version}/` : null;
+      crumbs.push(
+        version
+          ? html`
+              <span class="subtle">
+                @${branchUrl ? `<a href="${branchUrl}">` : ""}${escapeHtml(
+                  version
+                )}${branchUrl ? "</a>" : ""}</span
+              >
+            `
+          : ""
+      );
+    } else {
+      if (i === segments.length - 1) {
+        crumbs.push(
+          html`
+            <strong>${escapeHtml(segment)}</strong>
+          `
+        );
+      } else {
+        crumbs.push(
+          html`
+            <a href="${url}">${escapeHtml(segment)}</a>
+          `
+        );
+      }
     }
   }
 

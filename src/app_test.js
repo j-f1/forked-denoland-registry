@@ -11,6 +11,7 @@ exports.tests = async function tests() {
   assert.deepEqual(proxy("/x/install/foo/bar.js"), {
     entry: {
       name: "install",
+      branch: "master",
       type: "github",
       raw: { type: "github", owner: "denoland", repo: "deno_install" },
       url: "https://raw.githubusercontent.com/denoland/deno_install/master/",
@@ -21,6 +22,7 @@ exports.tests = async function tests() {
   assert.deepEqual(proxy("/x/install@v0.1.2/foo/bar.js"), {
     entry: {
       name: "install",
+      branch: "v0.1.2",
       type: "github",
       raw: { type: "github", owner: "denoland", repo: "deno_install" },
       url: "https://raw.githubusercontent.com/denoland/deno_install/v0.1.2/",

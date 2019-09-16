@@ -18,6 +18,9 @@ import bar from './bar.ts'
 
 export { notRenamed, named as renamed } from './another-module.ts'
 
+var x: Promise | ImportMeta
+type F = (x: string) => void
+
 export const [one, two, three] = [1, 2, 3]
 foo(one, two, three)
 
@@ -33,6 +36,9 @@ import <a class="ref" href="./bar.ts#default"><span class="definition" id="symbo
 
 export { <a class="ref" href="./another-module.ts#notRenamed"><span class="definition" id="notRenamed">notRenamed</span></a>, <a class="ref" href="./another-module.ts#named">named</a> as <span class="definition" id="renamed">renamed</span> } from <a href="./another-module.ts" class="hljs-string">&#039;./another-module.ts&#039;</a>
 
+var <span class="definition" id="symbol-x">x</span>: Promise | ImportMeta
+type <span class="definition" id="symbol-F">F</span> = (<span class="definition" id="symbol-x-178">x</span>: string) =&gt; void
+
 export const [<span class="definition" id="one">one</span>, <span class="definition" id="two">two</span>, <span class="definition" id="three">three</span>] = [1, 2, 3]
 <a class="ref" href="#default">foo</a>(<a class="ref" href="#one">one</a>, <a class="ref" href="#two">two</a>, <a class="ref" href="#three">three</a>)
 
@@ -42,6 +48,13 @@ export { <a class="ref" href="#quux">baz</a> as <span class="definition" id="quu
 export default function <span class="definition" id="default">foo</span>(<span class="definition" id="default-thing">thing</span>, { thing: <span class="definition" id="default-thing2">thing2</span> }) {
   return <a class="ref" href="#default-thing">thing</a>.concat(<a class="ref" href="#default-thing2">thing2</a>)
 }
+`.trim());
+
+  // prettier-ignore
+  runTest("/x/tests/script.ts", js`
+function foo() {}
+`.trim(), html`
+function <span class="definition" id="symbol-foo">foo</span>() {}
 `.trim());
 };
 

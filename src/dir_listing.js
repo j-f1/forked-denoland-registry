@@ -83,7 +83,7 @@ module.exports = function renderListing(
             text-decoration: underline;
             font-family: monospace;
           }
-          .files li:not(:hover) a .name.hidden {
+          .files li:not(:hover) a .name.hidden-file {
             opacity: 0.5;
           }
           .files li .size {
@@ -190,7 +190,7 @@ module.exports = function renderListing(
                           data-icon="${icons[item.type]}"
                           ><span
                             class="name ${item.name.startsWith(".")
-                              ? "hidden"
+                              ? "hidden-file"
                               : ""}"
                             >${escapeHtml(item.name)}</span
                           ></a

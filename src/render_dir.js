@@ -6,7 +6,7 @@ const renderListing = require("./dir_listing");
 module.exports = async function renderDir(pathname, entry, path) {
   if (entry.raw.type === "github") {
     const res = await fetch(
-      `https://api.github.com/repos/${entry.raw.owner}/${entry.raw.repo}/contents/${path}`,
+      `https://api.github.com/repos/${entry.raw.owner}/${entry.raw.repo}/contents/${path}?ref=${entry.branch}`,
       {
         headers: {
           authorization:

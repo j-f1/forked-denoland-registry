@@ -15,6 +15,7 @@ module.exports = function createStyle(maxNumberLength) {
       padding-right: 0;
       background: transparent;
       -webkit-text-size-adjust: 100%;
+      overflow: visible;
     }
     @media ${breakpoint} {
       pre {

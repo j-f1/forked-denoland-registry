@@ -1,4 +1,7 @@
 ///<reference lib="es2015"/>
+const fs = require("fs");
+const path = require("path");
+
 const ts = require("typescript");
 const { safe, unsafe, applyReplacements, toString } = require("./replacements");
 const { walkAST, escapeHtml } = require("./utils");
@@ -25,13 +28,28 @@ function annotate(pathname, code) {
   );
 }
 
+const tsLib = path.dirname(require.resolve("typescript/lib/lib.d.ts"));
+const cache = Object.create(null);
+function loadLibFile(name) {
+  if (!name.includes("@ts:lib")) return null;
+  if (cache[name]) return cache[name];
+
+  const content = fs.readFileSync(
+    path.join(tsLib, name.replace(/[\\\/]@ts:lib[\/\\]/, "")),
+    "utf8"
+  );
+  const file = ts.createSourceFile(name, content, ts.ScriptTarget.ESNext);
+  cache[name] = file;
+  return file;
+}
+
 /**
  * @param {string} pathname
  * @param {string} code
  */
 function parse(pathname, code) {
   const sourceFile = ts.createSourceFile(
-    `https://deno.land${pathname}`,
+    pathname,
     code,
     ts.ScriptTarget.ESNext
   );
@@ -41,12 +59,14 @@ function parse(pathname, code) {
       module: "esnext"
     },
     host: {
-      getSourceFile: () => sourceFile,
-      getDefaultLibFileName: () => "lib.esnext.d.ts",
+      getSourceFile: name =>
+        name === pathname ? sourceFile : loadLibFile(name),
+      getDefaultLibFileName: () => "/@ts:lib/lib.esnext.d.ts",
       getCurrentDirectory: () => "/",
       getCanonicalFileName: f => f,
       useCaseSensitiveFileNames: () => true,
-      fileExists: name => name === pathname
+      fileExists: name => name === pathname || name.startsWith("/@ts:lib"),
+      directoryExists: name => name === "/@ts:lib"
     }
   });
   const typeChecker = program.getTypeChecker();
@@ -65,9 +85,9 @@ function linkToDefinitions({ sourceFile, typeChecker }) {
      * @param {ts.StringLiteral} specifier
      */
     const transformImportSource = specifier => {
-      const text = specifier.getText();
-      const start = specifier.getStart();
-      const end = specifier.getEnd();
+      const start = specifier.getStart(sourceFile);
+      const end = specifier.getEnd(sourceFile);
+      const text = sourceFile.text.substring(start, end);
 
       replacements.push({
         start,
@@ -135,6 +155,14 @@ function linkToDefinitions({ sourceFile, typeChecker }) {
         const valueDecl = (symbol.valueDeclaration || symbol.declarations[0])
           .name;
 
+        // Language-provided type
+        if (
+          [symbol.valueDeclaration, ...symbol.declarations]
+            .filter(Boolean)
+            .every(s => s.getSourceFile().fileName.startsWith("/@ts:lib"))
+        ) {
+          return;
+        }
         replacements.push({
           start,
           end,
@@ -230,22 +258,28 @@ function idFor(node, typeChecker) {
   if (idCache.has(node)) return idCache.get(node);
 
   const id = (() => {
+    const fallbackId = `symbol-${escapeHtml(
+      node.getText()
+    )}-${node.getStart()}`;
+
     const moduleSymbol = typeChecker.getSymbolAtLocation(node.getSourceFile());
     const symbol = typeChecker.getSymbolAtLocation(node);
-    const exportEntry = [...moduleSymbol.exports.values()].find(exported =>
-      exported.declarations.some(
-        decl =>
-          typeChecker.getSymbolAtLocation(decl.propertyName) === symbol ||
-          typeChecker.getSymbolAtLocation(decl.name) === symbol
-      )
-    );
+    const exportEntry =
+      moduleSymbol && // not present if file has no imports or exports
+      [...moduleSymbol.exports.values()].find(exported =>
+        exported.declarations.some(
+          decl =>
+            typeChecker.getSymbolAtLocation(decl.propertyName) === symbol ||
+            typeChecker.getSymbolAtLocation(decl.name) === symbol
+        )
+      );
 
     if (exportEntry) {
       return exportEntry.name;
     }
 
     if (!ts.isSourceFile(getStatement(node).parent)) {
-      return `symbol-${escapeHtml(node.getText())}-${node.getStart()}`;
+      return fallbackId;
     }
 
     /** @type {ts.Parameter | false} */
@@ -257,7 +291,8 @@ function idFor(node, typeChecker) {
 
     if (!param) return `symbol-${node.getText()}`;
 
-    const fn = param.parent;
+    const fn = param.parent.name;
+    if (!fn) return fallbackId;
 
     return idFor(fn, typeChecker) + "-" + node.getText();
   })();
@@ -270,9 +305,9 @@ function idFor(node, typeChecker) {
  * @param {ts.Node} node
  */
 function getStatement(node) {
-  let statement = node.parent;
+  let statement = node;
   while (
-    statement &&
+    statement.parent &&
     !(
       ts.isSourceFile(statement.parent) ||
       ts.isBlock(statement.parent) ||
@@ -292,8 +327,15 @@ function isDefinition(symbol, node) {
   if (symbol.valueDeclaration) {
     return symbol.valueDeclaration.name === node;
   }
-  if (symbol.declarations.length > 1) foo;
-  const declaration = symbol.declarations[0];
+  let localDeclarations;
+  if (symbol.declarations.length > 1) {
+    localDeclarations = symbol.declarations.filter(
+      d => !d.getSourceFile().fileName.startsWith("/@ts:lib")
+    );
+    if (localDeclarations.length > 1)
+      console.log("symbol has > 1 local declaration", symbol);
+  }
+  const declaration = (localDeclarations || symbol.declarations)[0];
 
   return declaration.name === node;
 }

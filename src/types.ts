@@ -20,6 +20,7 @@ export interface Replacement {
 
 export interface Entry {
   name: string;
+  branch: string;
   url: string;
   repo: string;
   raw: RawEntry;
