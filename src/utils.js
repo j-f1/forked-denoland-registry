@@ -28,18 +28,32 @@ exports.walkAST = function walkAST(node, cb) {
  */
 exports.getEntry = function getEntry(name, branch = "master") {
   const rawEntry = DATABASE[name];
-  if (rawEntry.type === "url") {
+  if (!rawEntry) {
+    return null;
+  } else if (rawEntry.type === "url") {
     return {
       name,
       raw: rawEntry,
+      type: "url",
       url: rawEntry.url.replace(/\$\{b}/, branch),
       repo: rawEntry.repo.replace(/\$\{b}/, branch)
+    };
+  }
+  if (rawEntry.type === "esm") {
+    const version = branch === "master" ? "latest" : branch;
+    return {
+      name,
+      raw: rawEntry,
+      type: "esm",
+      url: rawEntry.url.replace(/\$\{v}/, version),
+      repo: rawEntry.repo.replace(/\$\{v}/, version)
     };
   }
   if (rawEntry.type === "github") {
     return {
       name,
       raw: rawEntry,
+      type: "github",
       url: `https://raw.githubusercontent.com/${rawEntry.owner}/${
         rawEntry.repo
       }/${branch}${rawEntry.path || "/"}`,

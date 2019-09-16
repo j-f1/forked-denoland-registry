@@ -43,6 +43,14 @@ module.exports = async function render(
     } else {
       return response.success(transpiled, "application/javascript");
     }
+  } else if (entry.type === "esm") {
+    if (showHTMLVersion) {
+      return require("./render_code")(pathname, content, entry, {
+        raw: true
+      });
+    } else {
+      return response.success(content, "application/javascript");
+    }
   } else if (showHTMLVersion) {
     // Accept header present, this is a web browser, so display something
     // pretty.

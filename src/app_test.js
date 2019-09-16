@@ -11,6 +11,7 @@ exports.tests = async function tests() {
   assert.deepEqual(proxy("/x/install/foo/bar.js"), {
     entry: {
       name: "install",
+      type: "github",
       raw: { type: "github", owner: "denoland", repo: "deno_install" },
       url: "https://raw.githubusercontent.com/denoland/deno_install/master/",
       repo: "https://github.com/denoland/deno_install"
@@ -20,12 +21,34 @@ exports.tests = async function tests() {
   assert.deepEqual(proxy("/x/install@v0.1.2/foo/bar.js"), {
     entry: {
       name: "install",
+      type: "github",
       raw: { type: "github", owner: "denoland", repo: "deno_install" },
       url: "https://raw.githubusercontent.com/denoland/deno_install/v0.1.2/",
       repo: "https://github.com/denoland/deno_install"
     },
     path: "foo/bar.js"
   });
+
+  database.__test_version = {
+    type: "esm",
+    url: "https://unpkg.com/__test_version@${v}/",
+    repo: "https://github.com/__test_versionorg/repo"
+  };
+  assert.deepEqual(proxy("/x/__test_version@master/file.js"), {
+    entry: {
+      name: "__test_version",
+      type: "esm",
+      raw: {
+        type: "esm",
+        url: "https://unpkg.com/__test_version@${v}/",
+        repo: "https://github.com/__test_versionorg/repo"
+      },
+      url: "https://unpkg.com/__test_version@latest/",
+      repo: "https://github.com/__test_versionorg/repo"
+    },
+    path: "file.js"
+  });
+  delete database.__test_version;
 
   let event = require("./testdata/req1.json");
   const context = require("./testdata/context1.json");

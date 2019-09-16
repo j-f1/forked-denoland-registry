@@ -8,8 +8,8 @@ const { transformModuleSpecifier } = require("./transpile_code");
 const { annotate } = require("./analyze_code");
 const renderBreadcrumbs = require("./breadcrumbs");
 
-function getLines(pathname, code) {
-  if (pathname.endsWith(".ts") || pathname.endsWith(".js")) {
+function getLines(pathname, code, opts) {
+  if (!opts.raw && (pathname.endsWith(".ts") || pathname.endsWith(".js"))) {
     try {
       return {
         err: null,
@@ -31,7 +31,8 @@ function getLines(pathname, code) {
 module.exports = function renderCode(pathname, code, entry, opts = {}) {
   const url = `https://deno.land${pathname}`;
 
-  const { err, lines: escapedLines } = getLines(pathname, code);
+  const { err, lines: escapedLines } = getLines(pathname, code, opts);
+
   const lineNumberedCode = escapedLines
     .map((content, i) => {
       const line = i + 1;
