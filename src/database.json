@@ -4,11 +4,6 @@
     "owner": "zhmushan",
     "repo": "abc"
   },
-  "aead_chacha20_poly1305": {
-    "type": "github",
-    "owner": "chiefbiiko",
-    "repo": "aead-chacha20-poly1305"
-  },
   "alosaur": {
     "type": "github",
     "owner": "irustm",
@@ -49,6 +44,16 @@
     "owner": "zekth",
     "repo": "deno_case_style"
   },
+  "chacha20": {
+    "type": "github",
+    "owner": "chiefbiiko",
+    "repo": "chacha20"
+  },
+  "chacha20_poly1305": {
+    "type": "github",
+    "owner": "chiefbiiko",
+    "repo": "chacha20-poly1305"
+  },
   "chunked": {
     "type": "github",
     "owner": "aynik",
@@ -83,6 +88,11 @@
     "type": "github",
     "owner": "manyuanrong",
     "repo": "deno-checksum"
+  },
+  "curve25519": {
+    "type": "github",
+    "owner": "chiefbiiko",
+    "repo": "curve25519"
   },
   "databatcher": {
     "type": "github",
@@ -210,6 +220,11 @@
     "owner": "partheseas",
     "repo": "gardens"
   },
+  "hchacha20": {
+    "type": "github",
+    "owner": "chiefbiiko",
+    "repo": "hchacha20"
+  },
   "hmac": {
     "type": "github",
     "owner": "chiefbiiko",
@@ -317,6 +332,11 @@
     "owner": "sholladay",
     "repo": "pogo"
   },
+  "poly1305": {
+    "type": "github",
+    "owner": "chiefbiiko",
+    "repo": "poly1305"
+  },
   "postgres": {
     "type": "github",
     "owner": "buildondata",
@@ -422,5 +442,15 @@
     "type": "github",
     "owner": "jinjor",
     "repo": "deno-watch"
+  },
+  "xchacha20": {
+    "type": "github",
+    "owner": "chiefbiiko",
+    "repo": "xchacha20"
+  },
+  "xchacha20_poly1305": {
+    "type": "github",
+    "owner": "chiefbiiko",
+    "repo": "xchacha20-poly1305"
   }
 }
