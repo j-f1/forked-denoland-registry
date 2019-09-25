@@ -402,6 +402,12 @@
     "owner": "eliassjogreen",
     "repo": "deno_tokenizer"
   },
+  "unexpected": {
+    "type": "esm",
+    "owner": "alexjeffburke",
+    "url": "https://unpkg.com/unexpected@${v}/",
+    "repo": "https://unexpected.js.org/"
+  },
   "uuid": {
     "type": "github",
     "owner": "lucascaro",
