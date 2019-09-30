@@ -327,6 +327,11 @@
     "owner": "chiefbiiko",
     "repo": "pbkdf2"
   },
+  "perlinnoise": {
+    "type": "github",
+    "owner": "herohamp",
+    "repo": "PerlinNoise-Deno"
+  },
   "pipeline": {
     "type": "github",
     "owner": "Focinfi",
