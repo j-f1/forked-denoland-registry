@@ -155,6 +155,11 @@
     "owner": "rsp",
     "repo": "deno-dirname"
   },
+  "djwt": {
+    "type": "github",
+    "owner": "timonson",
+    "repo": "djwt"
+  },
   "docable": {
     "type": "github",
     "owner": "crookse",
